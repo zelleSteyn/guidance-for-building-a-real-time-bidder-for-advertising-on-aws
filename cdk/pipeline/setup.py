@@ -23,7 +23,7 @@ setuptools.setup(
         "cdk-nag==2.28.195"
     ],
 
-    python_requires=">=3.9",
+    #python_requires=">=3.9",
 
     classifiers=[
         "Development Status :: 4 - Beta",
