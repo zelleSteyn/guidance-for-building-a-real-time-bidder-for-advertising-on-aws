@@ -13,7 +13,7 @@ Parameters:
   RepositoryURL:
     Type: String
     Description: URL of the repository
-    Default: https://bitbucket.org/aws-bidder/bidder.git
+    Default: https://github.com/zelleSteyn/guidance-for-building-a-real-time-bidder-for-advertising-on-aws.git
 
 Conditions:
   DeployDynamoDB: !Equals ['CodekitDynamoDB', !Ref Variant ]
