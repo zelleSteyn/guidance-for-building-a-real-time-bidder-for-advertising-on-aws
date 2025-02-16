@@ -72,11 +72,11 @@ export IMAGE_PREFIX="${STACK_NAME}-"
 export CF_TEMP_DIR=`mktemp -d`
 export CF_TEMP_FILE=`mktemp -p ${CF_TEMP_DIR}`
 
-export UNIQUEID = $(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
+export UNID=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 
 touch ${CF_TEMP_FILE}
 
-export CF_BUCKET_NAME=${STACK_NAME}-cf-templates-${UNIQUEID}
+export CF_BUCKET_NAME=${STACK_NAME}-cf-templates-${UNID}
 echo "[Setup] Creating a S3 bucket (${CF_BUCKET_NAME}) to store the Cloudformation stack package..."
 
 if aws s3api head-bucket --bucket ${CF_BUCKET_NAME} --region ${AWS_REGION} 2>&1 | grep -q 'Not Found'; then
@@ -102,7 +102,7 @@ aws cloudformation deploy \
     --parameter-overrides \
         "ProjectName=${STACK_NAME}" \
         "Variant=Codekit${VARIANT}" \
-        "UniqueId=${UNIQUEID}"
+        "UniqueId=${UNID}"
     --no-fail-on-empty-changeset
 
 
