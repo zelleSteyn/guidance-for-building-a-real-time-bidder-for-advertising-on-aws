@@ -74,7 +74,7 @@ export CF_TEMP_FILE=`mktemp -p ${CF_TEMP_DIR}`
 
 touch ${CF_TEMP_FILE}
 
-export CF_BUCKET_NAME=${STACK_NAME}-cf-templates
+export CF_BUCKET_NAME=${STACK_NAME}-cf-templates-$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 echo "[Setup] Creating a S3 bucket (${CF_BUCKET_NAME}) to store the Cloudformation stack package..."
 
 if aws s3api head-bucket --bucket ${CF_BUCKET_NAME} --region ${AWS_REGION} 2>&1 | grep -q 'Not Found'; then
