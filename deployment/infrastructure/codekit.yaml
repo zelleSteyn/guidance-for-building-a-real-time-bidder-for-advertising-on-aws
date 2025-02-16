@@ -14,6 +14,11 @@ Parameters:
     Type: String
     Description: URL of the repository
     Default: https://github.com/zelleSteyn/guidance-for-building-a-real-time-bidder-for-advertising-on-aws.git
+  
+  UniqueId:
+    Type: String
+    Description: Unique Id
+    Default: ''
 
 Conditions:
   DeployDynamoDB: !Equals ['CodekitDynamoDB', !Ref Variant ]
