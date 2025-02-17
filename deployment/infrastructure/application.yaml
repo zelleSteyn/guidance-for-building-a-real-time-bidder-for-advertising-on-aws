@@ -768,4 +768,4 @@ Outputs:
     Description: The Name of the Application Stack
     Value: !Ref AWS::StackName
     Export:
-      Name: StackName
+      Name: StackName 
