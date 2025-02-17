@@ -5,6 +5,9 @@ Description: Guidance for Building a Real Time Bidder for Advertising on AWS
   Cluster, Kinesis DataStreams and Firehose.
 
 Parameters:
+  UniqueId:
+    Type: String
+    Default: ''
   RootStackName:
     Type: String
     Description: Root Stack Name
@@ -791,6 +794,7 @@ Resources:
           - ''
           - - !Ref RootStackName
             - '-bids-benchmark'
+            - !Ref UniqueId
         DataStreamName: !Sub ${AWS::StackName}-bids-benchmark
         #DeliveryStreamName:           !Sub '${AWS::StackName}-bids-benchmark'
         DataStreamShardCount: !FindInMap
@@ -801,6 +805,7 @@ Resources:
         DeliveryStreamBufferSize: '128'
         DeliveryStreamCompression: GZIP
         ProducerRoleARN: !Ref EksWorkerRoleArn
+        UniqueId: !Ref UniqueId
       Tags:
         - Key: stackName
           Value: !Ref AWS::StackName

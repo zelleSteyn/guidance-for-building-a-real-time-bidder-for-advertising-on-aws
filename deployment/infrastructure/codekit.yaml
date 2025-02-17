@@ -142,6 +142,7 @@ Resources:
         EksServiceRoleArn: !GetAtt EksServiceRole.Arn
         EksWorkerRoleArn: !GetAtt EksWorkerRole.Arn
         RootStackName: !Ref AWS::StackName
+        UniqueId: !Ref UniqueId
 
   EksServiceRole:
     Type: AWS::IAM::Role

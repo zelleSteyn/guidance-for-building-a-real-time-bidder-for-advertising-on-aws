@@ -2,6 +2,10 @@ Description: Guidance for Building a Real Time Bidder for Advertising on AWS
   (SO9111). Deploys AWS Kinesis stack
 
 Parameters:
+  UniqueId:
+    Type: String
+    Default: ''
+
   BucketName:
     Type: String
     Description: Bucket name
