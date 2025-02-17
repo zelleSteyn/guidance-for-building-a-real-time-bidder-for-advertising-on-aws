@@ -104,7 +104,6 @@ aws cloudformation deploy \
         "ProjectName=${STACK_NAME}" \
         "Variant=Codekit${VARIANT}" \
         "UniqueId=${UNID}"
-    --region ${AWS_REGION}
 
 
 export APPLICATION_STACK_NAME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq '.Stacks[].Outputs[] | select(.OutputKey=="ApplicationStackARN") | .OutputValue' | cut -d/ -f2`
