@@ -181,6 +181,7 @@ Resources:
           - id: W28
             reason: The name has to be explicit because of the application settings.
 
+
   AudienceCampaignsTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Delete
