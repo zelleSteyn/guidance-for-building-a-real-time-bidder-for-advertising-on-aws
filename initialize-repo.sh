@@ -66,13 +66,14 @@ if ! sh -c "echo $USE_DATAGEN | grep -q -E '^(yes|no)$'" ; then
     exit 1
 fi
 
-export BIDDER_IMAGE_REPOSITORY=${STACK_NAME}-bidder
+expo=${STACK_NAME}-bidder
 export IMAGE_PREFIX="${STACK_NAME}-"
 
 export CF_TEMP_DIR=`mktemp -d`
 export CF_TEMP_FILE=`mktemp -p ${CF_TEMP_DIR}`
 
-export UNID=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
+export UNID='v8phknjl'
+#$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 
 touch ${CF_TEMP_FILE}
 
