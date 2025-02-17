@@ -693,6 +693,7 @@ Resources:
       Tags:
         - Key: stackName
           Value: !Ref AWS::StackName
+    DependsOn: EKS
 
   EKS:
     Type: AWS::CloudFormation::Stack
@@ -728,6 +729,8 @@ Resources:
       Tags:
         - Key: stackName
           Value: !Ref AWS::StackName
+    DependsOn: VPC
+    
 
   KinesisBenchmark:
     Type: AWS::CloudFormation::Stack
