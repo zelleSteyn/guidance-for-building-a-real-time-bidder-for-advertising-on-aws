@@ -104,6 +104,9 @@ aws cloudformation deploy \
         "Variant=Codekit${VARIANT}" \
         "UniqueId=${UNID}"
     --no-fail-on-empty-changeset
+    --region ${AWS_REGION}
+    --tags "Project=${STACK_NAME}"
+    --disable-rollback
 
 
 export APPLICATION_STACK_NAME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq '.Stacks[].Outputs[] | select(.OutputKey=="ApplicationStackARN") | .OutputValue' | cut -d/ -f2`
