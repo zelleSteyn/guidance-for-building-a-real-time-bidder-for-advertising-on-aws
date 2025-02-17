@@ -111,28 +111,8 @@ Resources:
           - id: W28
             reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
 
-  DynamoDBStack:
-    Type: AWS::CloudFormation::Stack
-    Condition: DeployDynamoDB
-    DependsOn: EksAccessRole
-    Properties:
-      TemplateURL: ./dynamodb.yaml
-      Parameters:
-        Variant:  !Ref Variant
-        TableNamePrefix: !Sub "${AWS::StackName}_"
-        EksWorkerRoleARN: !GetAtt EksWorkerRole.Arn
-        EksAccessRoleARN: !GetAtt EksAccessRole.Arn
-        UniqueId: !Ref UniqueId
-
-  ApplicationStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: ./application.yaml
-      Parameters:
-        Variant:           !Ref Variant
-        EksServiceRoleArn: !GetAtt EksServiceRole.Arn
-        EksWorkerRoleArn:  !GetAtt EksWorkerRole.Arn
-        RootStackName:     !Ref AWS::StackName
+  
+  
 
   EksServiceRole:
     Type: AWS::IAM::Role
@@ -171,6 +151,16 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
       Path: "/"
 
+  ApplicationStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./application.yaml
+      Parameters:
+        Variant:           !Ref Variant
+        EksServiceRoleArn: !GetAtt EksServiceRole.Arn
+        EksWorkerRoleArn:  !GetAtt EksWorkerRole.Arn
+        RootStackName:     !Ref AWS::StackName
+
   EksAccessRole:
     Type: AWS::IAM::Role
     Properties:
@@ -187,6 +177,20 @@ Resources:
                 - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
         Version: '2012-10-17'
       Path: "/"
+
+  DynamoDBStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployDynamoDB
+    DependsOn: EksAccessRole
+    Properties:
+      TemplateURL: ./dynamodb.yaml
+      Parameters:
+        Variant:  !Ref Variant
+        TableNamePrefix: !Sub "${AWS::StackName}_"
+        EksWorkerRoleARN: !GetAtt EksWorkerRole.Arn
+        EksAccessRoleARN: !GetAtt EksAccessRole.Arn
+        UniqueId: !Ref UniqueId
+
 
   EksAccessGroupEksClusterPolicy:
     Type: AWS::IAM::Policy
