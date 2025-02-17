@@ -150,7 +150,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}dev'
+      TableName: !Sub '${TableNamePrefix}dev-${UniqueId}'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
