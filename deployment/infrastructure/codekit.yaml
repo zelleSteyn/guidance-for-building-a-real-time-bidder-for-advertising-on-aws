@@ -1,118 +1,147 @@
----
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Guidance for Building a Real Time Bidder for Advertising on AWS (SO9111). This template is root stack which will deploy ECR repository, IAM Roles for EKS and application.yaml template.
+Description: Guidance for Building a Real Time Bidder for Advertising on AWS
+  (SO9111). This template is root stack which will deploy ECR repository, IAM
+  Roles for EKS and application.yaml template.
 
 Parameters:
   Variant:
     Type: String
     Description: Variant of infrastructure to deploy
     AllowedValues:
-      - 'CodekitAerospike'
-      - 'CodekitDynamoDB'
+      - CodekitAerospike
+      - CodekitDynamoDB
 
   RepositoryURL:
     Type: String
     Description: URL of the repository
     Default: https://github.com/zelleSteyn/guidance-for-building-a-real-time-bidder-for-advertising-on-aws.git
-  
+
   UniqueId:
     Type: String
     Description: Unique Id
     Default: ''
 
 Conditions:
-  DeployDynamoDB: !Equals ['CodekitDynamoDB', !Ref Variant ]
+  DeployDynamoDB: !Equals
+    - CodekitDynamoDB
+    - !Ref Variant
 
 Resources:
   GolangMirror:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-golang"
+      RepositoryName: !Sub ${AWS::StackName}-golang
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, because the deployment scripts rely on it.
-
+            reason: The name of the repository has to be hardcoded, because the deployment
+              scripts rely on it.
 
   # ECR
   BidderAppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-bidder"
+      RepositoryName: !Sub ${AWS::StackName}-bidder
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
   # model
   ModelAppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-model"
+      RepositoryName: !Sub ${AWS::StackName}-model
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
   EksNvmeProvisionerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-nvme-provisioner"
+      RepositoryName: !Sub ${AWS::StackName}-nvme-provisioner
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
   HelmRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-helm"
+      RepositoryName: !Sub ${AWS::StackName}-helm
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
   AerospikeServerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-aerospike-server"
+      RepositoryName: !Sub ${AWS::StackName}-aerospike-server
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
   DebianRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-debian"
+      RepositoryName: !Sub ${AWS::StackName}-debian
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 
-  
-  
+  DynamoDBStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: DeployDynamoDB
+    DependsOn: EksAccessRole
+    Properties:
+      TemplateURL: ./dynamodb.yaml
+      Parameters:
+        Variant: !Ref Variant
+        TableNamePrefix: !Sub ${AWS::StackName}_
+        EksWorkerRoleARN: !GetAtt EksWorkerRole.Arn
+        EksAccessRoleARN: !GetAtt EksAccessRole.Arn
+        UniqueId: !Ref UniqueId
+
+  ApplicationStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./application.yaml
+      Parameters:
+        Variant: !Ref Variant
+        EksServiceRoleArn: !GetAtt EksServiceRole.Arn
+        EksWorkerRoleArn: !GetAtt EksWorkerRole.Arn
+        RootStackName: !Ref AWS::StackName
 
   EksServiceRole:
     Type: AWS::IAM::Role
@@ -130,7 +159,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-      Path: "/"
+      Path: /
 
   EksWorkerRole:
     Type: AWS::IAM::Role
@@ -149,17 +178,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-      Path: "/"
-
-  ApplicationStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: ./application.yaml
-      Parameters:
-        Variant:           !Ref Variant
-        EksServiceRoleArn: !GetAtt EksServiceRole.Arn
-        EksWorkerRoleArn:  !GetAtt EksWorkerRole.Arn
-        RootStackName:     !Ref AWS::StackName
+      Path: /
 
   EksAccessRole:
     Type: AWS::IAM::Role
@@ -174,23 +193,9 @@ Resources:
               Service:
                 - codebuild.amazonaws.com
               AWS:
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
         Version: '2012-10-17'
-      Path: "/"
-
-  DynamoDBStack:
-    Type: AWS::CloudFormation::Stack
-    Condition: DeployDynamoDB
-    DependsOn: EksAccessRole
-    Properties:
-      TemplateURL: ./dynamodb.yaml
-      Parameters:
-        Variant:  !Ref Variant
-        TableNamePrefix: !Sub "${AWS::StackName}_"
-        EksWorkerRoleARN: !GetAtt EksWorkerRole.Arn
-        EksAccessRoleARN: !GetAtt EksAccessRole.Arn
-        UniqueId: !Ref UniqueId
-
+      Path: /
 
   EksAccessGroupEksClusterPolicy:
     Type: AWS::IAM::Policy
@@ -201,7 +206,7 @@ Resources:
           - Action:
               - eks:ListClusters
             Effect: Allow
-            Resource: "*"
+            Resource: '*'
           - Action:
               - eks:DescribeUpdate
               - eks:DescribeNodegroup
@@ -210,11 +215,11 @@ Resources:
               - eks:ListTagsForResource
               - eks:AccessKubernetesApi
             Effect: Allow
-            Resource: 
-              - !Sub "arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/${AWS::StackName}*"
-              - !Sub "arn:aws:eks:${AWS::Region}:${AWS::AccountId}:nodegroup/${AWS::StackName}*"
+            Resource:
+              - !Sub arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/${AWS::StackName}*
+              - !Sub arn:aws:eks:${AWS::Region}:${AWS::AccountId}:nodegroup/${AWS::StackName}*
         Version: '2012-10-17'
-      PolicyName: "EksClusterAccessPolicy"
+      PolicyName: EksClusterAccessPolicy
       Roles:
         - !Ref EksAccessRole
         - !Ref EksWorkerRole
@@ -222,7 +227,8 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W12
-            reason: Some of the actions (e.g. ListClusters) can't point to a specific resource.  
+            reason: Some of the actions (e.g. ListClusters) can't point to a specific
+              resource.
 
   EksWorkerRoleDynamoDBPolicy:
     Type: AWS::IAM::Policy
@@ -244,12 +250,12 @@ Resources:
               - dynamodb:PutItem
             Effect: Allow
             Resource:
-              - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_dev'
-              - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_campaign_budget'
-              - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_budget'
-              - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_audience_campaigns'
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_dev
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_campaign_budget
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_budget
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}_audience_campaigns
         Version: '2012-10-17'
-      PolicyName: "DynamoDBPolicy"
+      PolicyName: DynamoDBPolicy
       Roles:
         - !Ref EksAccessRole
         - !Ref EksWorkerRole
@@ -257,97 +263,99 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: W12
-            reason: Some of the actions (e.g. ListTables) can't point to a specific resource.
+            reason: Some of the actions (e.g. ListTables) can't point to a specific
+              resource.
 
   EksWorkerRoleAerospikeEBSPolicy:
     Type: AWS::IAM::Policy
     DependsOn: EksAccessRole
     Description: The aerospike cluster uses EBS volumes.
     Properties:
-      PolicyName: "AerospikeEBSPolicy"
+      PolicyName: AerospikeEBSPolicy
       Roles:
         - !Ref EksAccessRole
         - !Ref EksWorkerRole
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Effect: Allow
-          Action:
-            - ec2:CreateSnapshot
-            - ec2:AttachVolume
-            - ec2:DetachVolume
-            - ec2:ModifyVolume
-            - ec2:DescribeAvailabilityZones
-            - ec2:DescribeInstances
-            - ec2:DescribeSnapshots
-            - ec2:DescribeTags
-            - ec2:DescribeVolumes
-            - ec2:DescribeVolumesModifications
-          Resource: "*"
-        - Effect: Allow
-          Action:
-            - ec2:CreateTags
-          Resource:
-            - arn:aws:ec2:*:*:volume/*
-            - arn:aws:ec2:*:*:snapshot/*
-          Condition:
-            StringEquals:
-              ec2:CreateAction:
-                - CreateVolume
-                - CreateSnapshot
-        - Effect: Allow
-          Action:
-            - ec2:DeleteTags
-          Resource:
-            - arn:aws:ec2:*:*:volume/*
-            - arn:aws:ec2:*:*:snapshot/*
-        - Effect: Allow
-          Action:
-            - ec2:CreateVolume
-          Resource: "*"
-          Condition:
-            StringLike:
-              aws:RequestTag/ebs.csi.aws.com/cluster: 'true'
-        - Effect: Allow
-          Action:
-            - ec2:CreateVolume
-          Resource: "*"
-          Condition:
-            StringLike:
-              aws:RequestTag/CSIVolumeName: "*"
-        - Effect: Allow
-          Action:
-            - ec2:DeleteVolume
-          Resource: "*"
-          Condition:
-            StringLike:
-              ec2:ResourceTag/CSIVolumeName: "*"
-        - Effect: Allow
-          Action:
-            - ec2:DeleteVolume
-          Resource: "*"
-          Condition:
-            StringLike:
-              ec2:ResourceTag/ebs.csi.aws.com/cluster: 'true'
-        - Effect: Allow
-          Action:
-            - ec2:DeleteSnapshot
-          Resource: "*"
-          Condition:
-            StringLike:
-              ec2:ResourceTag/CSIVolumeSnapshotName: "*"
-        - Effect: Allow
-          Action:
-            - ec2:DeleteSnapshot
-          Resource: "*"
-          Condition:
-            StringLike:
-              ec2:ResourceTag/ebs.csi.aws.com/cluster: 'true'
+          - Effect: Allow
+            Action:
+              - ec2:CreateSnapshot
+              - ec2:AttachVolume
+              - ec2:DetachVolume
+              - ec2:ModifyVolume
+              - ec2:DescribeAvailabilityZones
+              - ec2:DescribeInstances
+              - ec2:DescribeSnapshots
+              - ec2:DescribeTags
+              - ec2:DescribeVolumes
+              - ec2:DescribeVolumesModifications
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - ec2:CreateTags
+            Resource:
+              - arn:aws:ec2:*:*:volume/*
+              - arn:aws:ec2:*:*:snapshot/*
+            Condition:
+              StringEquals:
+                ec2:CreateAction:
+                  - CreateVolume
+                  - CreateSnapshot
+          - Effect: Allow
+            Action:
+              - ec2:DeleteTags
+            Resource:
+              - arn:aws:ec2:*:*:volume/*
+              - arn:aws:ec2:*:*:snapshot/*
+          - Effect: Allow
+            Action:
+              - ec2:CreateVolume
+            Resource: '*'
+            Condition:
+              StringLike:
+                aws:RequestTag/ebs.csi.aws.com/cluster: 'true'
+          - Effect: Allow
+            Action:
+              - ec2:CreateVolume
+            Resource: '*'
+            Condition:
+              StringLike:
+                aws:RequestTag/CSIVolumeName: '*'
+          - Effect: Allow
+            Action:
+              - ec2:DeleteVolume
+            Resource: '*'
+            Condition:
+              StringLike:
+                ec2:ResourceTag/CSIVolumeName: '*'
+          - Effect: Allow
+            Action:
+              - ec2:DeleteVolume
+            Resource: '*'
+            Condition:
+              StringLike:
+                ec2:ResourceTag/ebs.csi.aws.com/cluster: 'true'
+          - Effect: Allow
+            Action:
+              - ec2:DeleteSnapshot
+            Resource: '*'
+            Condition:
+              StringLike:
+                ec2:ResourceTag/CSIVolumeSnapshotName: '*'
+          - Effect: Allow
+            Action:
+              - ec2:DeleteSnapshot
+            Resource: '*'
+            Condition:
+              StringLike:
+                ec2:ResourceTag/ebs.csi.aws.com/cluster: 'true'
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W12
-            reason: The policy was imported from the aws-ebs-csi-driver - https://github.com/kubernetes-sigs/aws-ebs-csi-driver
+            reason: The policy was imported from the aws-ebs-csi-driver -
+              https://github.com/kubernetes-sigs/aws-ebs-csi-driver
 
   EksWorkerRoleKinesisPolicy:
     Type: AWS::IAM::Policy
@@ -375,20 +383,21 @@ Resources:
               - !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${AWS::StackName}-*
               - !Sub arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${AWS::StackName}-*
         Version: '2012-10-17'
-      PolicyName: "KinesisEKSPolicy"
+      PolicyName: KinesisEKSPolicy
       Roles:
-        - Ref: EksAccessRole
-        - Ref: EksWorkerRole
+        - !Ref EksAccessRole
+        - !Ref EksWorkerRole
 
   EKSWorkerRoleAutoScalerPolicy:
     Type: AWS::IAM::Policy
     DependsOn: EksAccessRole
-    Description: The autoscaler will scale down the nodes in the nodegroups based on the setting.
+    Description: The autoscaler will scale down the nodes in the nodegroups based on
+      the setting.
     Properties:
       Roles:
-        - Ref: EksAccessRole
-        - Ref: EksWorkerRole
-      PolicyName: "AutoScalerEKSPolicy"
+        - !Ref EksAccessRole
+        - !Ref EksWorkerRole
+      PolicyName: AutoScalerEKSPolicy
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -403,51 +412,57 @@ Resources:
               - ec2:DescribeLaunchTemplateVersions
               - ec2:GetInstanceTypesFromInstanceRequirements
               - eks:DescribeNodegroup
-            Resource: "*"
+            Resource: '*'
           - Effect: Allow
             Action:
               - autoscaling:SetDesiredCapacity
               - autoscaling:TerminateInstanceInAutoScalingGroup
-            Resource: "*"
+            Resource: '*'
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W12
-            reason: Can't point to a specific resource in order to support autodiscovery. Customers can update this policy complementary to the change in the make file by identifying autoscaling groups in the helm deploy commands
-           
+            reason: Can't point to a specific resource in order to support autodiscovery.
+              Customers can update this policy complementary to the change in
+              the make file by identifying autoscaling groups in the helm deploy
+              commands
+
   DatagenAppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-datagen"
+      RepositoryName: !Sub ${AWS::StackName}-datagen
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
   AlpineRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-alpine"
+      RepositoryName: !Sub ${AWS::StackName}-alpine
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
   LoadGeneratorAppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${AWS::StackName}-load-generator"
+      RepositoryName: !Sub ${AWS::StackName}-load-generator
       ImageScanningConfiguration:
         ScanOnPush: true
     Metadata:
       cfn_nag:
         rules_to_suppress:
           - id: W28
-            reason: The name of the repository has to be hardcoded, beucase the deployment scripts rely on it.
+            reason: The name of the repository has to be hardcoded, beucase the deployment
+              scripts rely on it.
 Outputs:
   ApplicationStackName:
     Description: The Name of the Application Stack
@@ -471,6 +486,6 @@ Outputs:
       Name: EKSWorkerRoleARN
 
   EksNvmeProvisionerRepository:
-    Value: !Sub "${AWS::StackName}-nvme-provisioner"
+    Value: !Sub ${AWS::StackName}-nvme-provisioner
     Export:
       Name: EksNvmeProvisionerRepository
