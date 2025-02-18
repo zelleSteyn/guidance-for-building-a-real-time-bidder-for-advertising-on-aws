@@ -7,7 +7,7 @@ spec:
     metadata:
       labels:
         app: generate-audiences
-        name: generate-audiences-{{ randAlphaNum 8 | lower }}
+        generateName: generate-audiences-{{ randAlphaNum 8 | lower }}
     spec:
       nodeSelector:
         pool: basic-arm
