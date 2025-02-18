@@ -107,7 +107,7 @@ eks@grant-access: ## Grant access to EKS cluster for rest of the team
 	aws eks update-kubeconfig --name "$(STACK_NAME)"
 	EKS_ACCESS_ROLE_ARN=$(EKS_ACCESS_ROLE_ARN) EKS_WORKER_ROLE_ARN=$(EKS_WORKER_ROLE_ARN) \
 	envsubst < deployment/infrastructure/deployment/aws-auth.tpl.yaml > $(TEMP_FILE)
-	kubectl apply -f $(TEMP_FILE)
+	kubectl apply -f $(TEMP_FILE) 
 
 eks@provision: eks@update-dashboards ## Provision basic services to EKS cluster
 eks@provision: eks@provision-external-dns

@@ -17,4 +17,5 @@ nvme-provisioner@build:
 	docker buildx build --push --platform linux/amd64,linux/arm64 -t $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG) .
 
 nvme-provisioner@push:
+	docker tag $(AWS_ECR_NVME) $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG)
 	docker push $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG)
