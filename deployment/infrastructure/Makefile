@@ -383,7 +383,6 @@ dynamodb@datagen: DATAGEN_DEVICES_ITEMS_PER_JOB ?= 10000000
 dynamodb@datagen: DATAGEN_DEVICES_PARALLELISM ?= 100
 dynamodb@datagen: DATAGEN_CONCURRENCY ?= 32
 dynamodb@datagen: export IMAGE_PREFIX=$(STACK_NAME)-
-dynamodb@datagen: UNIQUEID=${UNID}
 #dynamodb@datagen: DYNAMODB_TABLENAME_PREFIX=$(STACK_NAME_)
 dynamodb@datagen: ## Run datagen to load data on the Aerospike cluster
 	echo $(DATAGEN_ITEMS_PER_JOB)
