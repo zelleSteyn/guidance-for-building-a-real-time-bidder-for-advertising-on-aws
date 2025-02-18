@@ -18,7 +18,6 @@ nvme-provisioner@build:
 	cd tools/nvme-provisioner; \
 	pwd; ls; \
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-	docker buildx create --name multiarch --use; \
 	docker buildx build --push --platform linux/amd64,linux/arm64 -t $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG) .
 
 nvme-provisioner@push:
