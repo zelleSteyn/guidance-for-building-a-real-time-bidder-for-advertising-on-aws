@@ -150,6 +150,9 @@ if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
     make aerospike@wait
 fi
 
+kubectl delete jobs --field-selector status.successful=1
+kubectl delete jobs --field-selector status.successful=0
+
 if sh -c "echo $USE_DATAGEN | grep -q -E '^(yes)$'" ; then
     echo "[Setup] Populating the database with testing data..."
     make datagen@image IMAGE_PREFIX="${STACK_NAME}-"
