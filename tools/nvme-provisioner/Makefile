@@ -17,7 +17,7 @@ buildx@install:
 nvme-provisioner@build:
 	cd tools/nvme-provisioner; \
 	pwd; ls; \
-	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 	aws ecr describe-images --repository-name $(AWS_ECR_NVME) \
 	docker manifest create $(NVME_PROVISIONER_IMAGE) $(NVME_PROVISIONER_IMAGE):$(IMAGE_TAG) \
 
