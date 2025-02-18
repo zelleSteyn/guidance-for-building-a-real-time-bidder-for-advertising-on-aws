@@ -18,7 +18,7 @@ spec:
           args:
             - -output=dynamodb
             - -type=devices
-            - -table=${DYNAMODB_TABLENAME_PREFIX}dev
+            - -table=${DYNAMODB_TABLENAME_PREFIX}dev-${UNIQUEID}
             - -low=${LOW}
             - -high=${HIGH}
             - -concurrency=${DATAGEN_CONCURRENCY}

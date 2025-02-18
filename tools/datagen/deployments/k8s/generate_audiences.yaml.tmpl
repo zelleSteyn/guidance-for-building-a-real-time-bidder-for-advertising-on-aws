@@ -18,7 +18,7 @@ spec:
           args:
             - -output=dynamodb
             - -type=audiences
-            - -table=${DYNAMODB_TABLENAME_PREFIX}audience_campaigns
+            - -table=${DYNAMODB_TABLENAME_PREFIX}audience_campaigns-${UNIQUEID}
             - -low=1
             - -high=${DATAGEN_ITEMS_PER_JOB}
             - -concurrency=${DATAGEN_CONCURRENCY}
