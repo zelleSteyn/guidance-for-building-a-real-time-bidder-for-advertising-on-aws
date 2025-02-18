@@ -106,6 +106,7 @@ aws cloudformation deploy \
         "UniqueId=${UNID}"
 
 
+
 export APPLICATION_STACK_NAME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq '.Stacks[].Outputs[] | select(.OutputKey=="ApplicationStackARN") | .OutputValue' | cut -d/ -f2`
 export CODEBUILD_STACK_NAME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq '.Stacks[].Outputs[] | select(.OutputKey=="CodebuildStackARN") | .OutputValue' | cut -d/ -f2`
 export EKS_WORKER_ROLE_ARN=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EKSWorkerRoleARN") | .OutputValue'`
