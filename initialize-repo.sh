@@ -138,7 +138,7 @@ echo "[Setup] Building the model on ARM64 and pushing it to the ECR registry..."
 #make model@push IMAGE_PREFIX="${STACK_NAME}-"
 
 echo "[Setup] Building the nvme-provisioner and pushing it to the ECR registry..."
-make buildx@install
+#make buildx@install
 make nvme-provisioner@build
 make nvme-provisioner@push
 
