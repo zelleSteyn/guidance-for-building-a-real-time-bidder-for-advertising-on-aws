@@ -7,13 +7,14 @@ spec:
     metadata:
       labels:
         app: generate-devices
+        name: generate-devices-{{ randAlphaNum 8 | lower }}
     spec:
       nodeSelector:
         pool: basic-arm
       restartPolicy: Never
       containers:
         - image: ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_PREFIX}datagen:latest
-          name: generate-devices2
+          name: generate-devices
           imagePullPolicy: Always
           args:
             - -output=dynamodb

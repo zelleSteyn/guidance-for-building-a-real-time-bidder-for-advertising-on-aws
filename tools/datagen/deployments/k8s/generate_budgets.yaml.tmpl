@@ -7,13 +7,14 @@ spec:
     metadata:
       labels:
         app: generate-budgets
+        name: generate-budgets-{{ randAlphaNum 8 | lower }}
     spec:
       nodeSelector:
         pool: basic-arm
       restartPolicy: Never
       containers:
         - image: ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_PREFIX}datagen:latest
-          name: generate-budgets2
+          name: generate-budgets
           imagePullPolicy: Always
           args:
             - -output=dynamodb

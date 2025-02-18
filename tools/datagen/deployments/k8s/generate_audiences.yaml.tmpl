@@ -7,13 +7,14 @@ spec:
     metadata:
       labels:
         app: generate-audiences
+        name: generate-audiences-{{ randAlphaNum 8 | lower }}
     spec:
       nodeSelector:
         pool: basic-arm
       restartPolicy: Never
       containers:
         - image: ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_PREFIX}datagen:latest
-          name: generate-audiences2
+          name: generate-audiences
           imagePullPolicy: Always
           args:
             - -output=dynamodb
