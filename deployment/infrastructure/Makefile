@@ -13,7 +13,7 @@ AWS_USERNAME = $(shell aws sts get-caller-identity --output json | jq -r  '.Arn'
 AWS_REGION ?= us-west-2
 AWS_TAGS = "StackName=$(STACK_NAME)" "Variant=$(VARIANT)" "Owner=$(AWS_USERNAME)"
 K8S_AWS_TAGS = "StackName=$(STACK_NAME),Variant=$(VARIANT),Owner=$(AWS_USERNAME)"
-
+UNID=v8phknjl
 
 IMAGE_PREFIX=$(STACK_NAME)-
 
@@ -383,6 +383,7 @@ dynamodb@datagen: DATAGEN_DEVICES_ITEMS_PER_JOB ?= 10000000
 dynamodb@datagen: DATAGEN_DEVICES_PARALLELISM ?= 100
 dynamodb@datagen: DATAGEN_CONCURRENCY ?= 32
 dynamodb@datagen: export IMAGE_PREFIX=$(STACK_NAME)-
+dynamodb@datagen: UNIQUEID=${UNID}
 #dynamodb@datagen: DYNAMODB_TABLENAME_PREFIX=$(STACK_NAME_)
 dynamodb@datagen: ## Run datagen to load data on the Aerospike cluster
 	echo $(DATAGEN_ITEMS_PER_JOB)
