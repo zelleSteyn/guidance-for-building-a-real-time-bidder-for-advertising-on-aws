@@ -10,18 +10,15 @@ IMAGE_TAG := latest
 buildx@install:
 	docker --version
 	mkdir -vp ~/.docker/cli-plugins/
-	TOKEN=$(aws ecr-public get-authorization-token --region us-east-1 --output=text --query 'authorizationData.authorizationToken')
-	curl --silent -i -H 'Authorization: Bearer $TOKEN' -L $(IMAGE_REPO) > ~/.docker/cli-plugins/docker-buildx
+	curl --silent -L "$(IMAGE_REPO)" > ~/.docker/cli-plugins/docker-buildx
 	chmod a+x ~/.docker/cli-plugins/docker-buildx
 
 nvme-provisioner@build:
 	cd tools/nvme-provisioner; \
 	pwd; ls; \
-	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-#	aws ecr describe-images --repository-name $(AWS_ECR_NVME) \
-#			docker manifest create $(NVME_PROVISIONER_IMAGE) $(NVME_PROVISIONER_IMAGE):$(IMAGE_TAG) \
+	docker buildx create --name multiarch --use; \
+	docker buildx build --push --platform linux/amd64,linux/arm64 -t $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG) .
 
 nvme-provisioner@push:
-	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 	docker tag $(NVME_PROVISIONER_TAG) $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG)
 	docker push $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG)
