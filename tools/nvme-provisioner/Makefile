@@ -16,9 +16,9 @@ buildx@install:
 
 .PHONY: build
 nvme-provisioner@build:
-	docker build -t nvme-provisioner \
-		--build-arg BASE_IMAGE=public.ecr.aws/s0g1m5a8/buildx-multiarch:latest \
-		.
+	cd tools/nvme-provisioner; \
+	pwd; ls; \
+	docker build -t nvme-provisioner --push --platform linux/amd64,linux/arm64 --build-arg BASE_IMAGE=public.ecr.aws/s0g1m5a8/buildx-multiarch:latest .
 
 .PHONY: push
 #	cd tools/nvme-provisioner; \
