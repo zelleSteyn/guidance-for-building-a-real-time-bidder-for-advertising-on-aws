@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
         - image: ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_PREFIX}datagen:latest
-          name: generate-audiences
+          name: generate-audiences2
           imagePullPolicy: Always
           args:
             - -output=dynamodb
