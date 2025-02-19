@@ -72,7 +72,8 @@ export IMAGE_PREFIX="${STACK_NAME}-"
 export CF_TEMP_DIR=`mktemp -d`
 export CF_TEMP_FILE=`mktemp -p ${CF_TEMP_DIR}`
 
-export UNID='v8phknjl'
+export UNID=$7
+echo "[Setup] ${UNID} is the unique identifier for the stack..."
 #$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 
 touch ${CF_TEMP_FILE}
@@ -113,8 +114,8 @@ export EKS_WORKER_ROLE_ARN=`aws cloudformation describe-stacks --stack-name ${ST
 export EKS_ACCESS_ROLE_ARN=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EKSAccessRoleARN") | .OutputValue'`
 export AWS_ECR_NVME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EksNvmeProvisionerRepository") | .OutputValue'`
 #export AWS_LOAD_GENERATOR = `aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EksNvmeProvisionerRepository") | .OutputValue'`
-export DYNAMODB_TABLENAME_PREFIX=${STACK_NAME}_
 
+export DYNAMODB_TABLENAME_PREFIX = ${STACK_NAME}_${UNID}_
 # test helm version release 3.8.2 is needed for eks 1.21 k8s
 helm version
 
@@ -149,39 +150,3 @@ if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
     make aerospike@deploy AEROSPIKE_VARIANT="benchmark"
     make aerospike@wait
 fi
-
-kubectl delete jobs --field-selector status.successful=1
-kubectl delete jobs --field-selector status.successful=0
-
-if sh -c "echo $USE_DATAGEN | grep -q -E '^(yes)$'" ; then
-    echo "[Setup] Populating the database with testing data..."
-    make datagen@image IMAGE_PREFIX="${STACK_NAME}-"
-    # make datagen@push IMAGE_PREFIX="${STACK_NAME}-"
-    if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
-       echo "Datagen on Aerospike has been disabled"
-       make aerospike@datagen DATAGEN_CONCURRENCY=32 DATAGEN_ITEMS_PER_JOB=10000  DATAGEN_DEVICES_ITEMS_PER_JOB=100000 DATAGEN_DEVICES_PARALLELISM=30 STACK_NAME=${STACK_NAME} UNIQUEID=${UNID}
-    else
-      make dynamodb@datagen DATAGEN_CONCURRENCY=1 DATAGEN_ITEMS_PER_JOB=1000  DATAGEN_DEVICES_ITEMS_PER_JOB=1000 DATAGEN_DEVICES_PARALLELISM=1 STACK_NAME=${STACK_NAME} UNIQUEID=${UNID}
-    fi
-fi
-
-# Deploy the bidderapp
-export BIDDER_OVERLAY_TEMP=$(mktemp)
-envsubst < deployment/infrastructure/deployment/bidder/overlay-codekit-${VARIANT,,}.yaml.tmpl >${BIDDER_OVERLAY_TEMP}
-make eks@deploybidder VALUES=${BIDDER_OVERLAY_TEMP}
-
-if sh -c "echo $USE_LOAD_GENERATOR | grep -q -E '^(yes)$'" ; then
-    make load-generator@build
-    # make load-generator@push
-    LOAD_GENERATOR_OVERLAY_TEMP=$(mktemp)
-    envsubst < deployment/infrastructure/deployment/load-generator/overlay-codekit.yaml.tmpl >${LOAD_GENERATOR_OVERLAY_TEMP}
-
-    echo "[Setup] Deploying the load generator..."
-
-    if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
-      make benchmark@run TARGET="http://bidder/bidrequest" VALUES="${LOAD_GENERATOR_OVERLAY_TEMP}" RATE_PER_JOB=3000000 NUMBER_OF_JOBS=1 NUMBER_OF_DEVICES=1000000000 DURATION=30m STACK_NAME=${STACK_NAME} LOAD_GENERATOR_NODE_SELECTOR_POOL=benchmark
-    else
-      TARGET="http://bidder/bidrequest" VALUES="${LOAD_GENERATOR_OVERLAY_TEMP}" make benchmark@run-simple
-    fi
-fi
-echo "[Setup] The bidder has been deployed. You can log in to the EKS cluster and access the Grafana dashboards."

@@ -12,12 +12,8 @@ buildx@install:
 	mkdir -vp ~/.docker/cli-plugins/
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 	TOKEN=$(aws ecr-public get-authorization-token --region us-east-1 --output=text --query 'authorizationData.authorizationToken')
-	curl -i -H "Authorization: Bearer $TOKEN" ${IMAGE_REPO} > ~/.docker/cli-plugins/docker-buildx
-	chmod a+x ~/.docker/cli-plugins/docker-buildx
-
+	curl -i -H "Authorization: Bearer $TOKEN" ${IMAGE_REPO}
 nvme-provisioner@build:
-	cd tools/nvme-provisioner; \
-	pwd; ls; \
 	docker buildx create --name multiarch --use; \
 	docker buildx build --push --platform linux/amd64,linux/arm64 -t $(NVME_PROVISIONER_IMAGE):$(NVME_PROVISIONER_TAG) .
 #	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_PUBLIC_ECR_REGISTRY)

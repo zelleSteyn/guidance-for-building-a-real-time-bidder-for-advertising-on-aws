@@ -20,12 +20,10 @@ phases:
       - chmod a+x ~/.docker/cli-plugins/docker-buildx
       - export DOCKER_BUILDKIT=1
       - echo "Starting build `date` in `pwd`"
-      - chmod +x ./initialize-repo.sh && ./initialize-repo.sh ${AWS_ACCOUNT_ID} ${AWS_REGION} ${RTBKIT_ROOT_STACK_NAME} ${RTBKIT_VARIANT} yes yes
+      - chmod +x ./initialize-repo.sh && ./initialize-repo.sh ${AWS_ACCOUNT_ID} ${AWS_REGION} ${RTBKIT_ROOT_STACK_NAME} ${RTBKIT_VARIANT} yes yes ${UNIQUEID} 
       - echo "Build completed `date`"
   post_build:
     commands:
-      - chmod +x ./post-build.sh && ./post-build.sh ${AWS_REGION} ${RTBKIT_ROOT_STACK_NAME}
-      - echo "Post build completed on `date`"
 
 artifacts:
   files:

@@ -150,7 +150,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}dev-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}_${UniqueId}_dev-${UniqueId}'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -187,7 +187,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}audience_campaigns-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}_${UniqueId}_audience_campaigns-${UniqueId}'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -222,7 +222,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}campaign_budget-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}_${UniqueId}_campaign_budget'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -258,7 +258,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}budget-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}_${UniqueId}_budget-${UniqueId}'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
       SSESpecification:
         SSEType: KMS

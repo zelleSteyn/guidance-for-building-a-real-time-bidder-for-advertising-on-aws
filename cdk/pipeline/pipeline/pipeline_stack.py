@@ -1,5 +1,6 @@
 # Description: Guidance for Building a Real Time Bidder for Advertising on AWS (SO9111). Deploys AWS CodeBuild and CodePipeline that in turn deploys the CFN templates with infra and bidder application on EKS
 import os
+import uuid
 from aws_cdk import (
     Stack,
     aws_codebuild as cb,
@@ -16,7 +17,7 @@ class PipelineStack(Stack):
 
         acc = os.getenv("CDK_DEFAULT_ACCOUNT")
         reg = os.getenv("CDK_DEFAULT_REGION")
-
+        
         # Get environment-specific context
         env_context = self.node.try_get_context(stage)
         shared_context = self.node.try_get_context('shared')
@@ -74,6 +75,9 @@ class PipelineStack(Stack):
         # (cloudformation template + all other assets)
         cloud_assembly_artifact = cp.Artifact()
 
+        # unique id used throughout the stack for ensuring unique names
+        unique_id=uuid.uuid4().hex[:4]
+
         source_action=cpa.GitHubSourceAction(
             action_name='GitHubSourceAction', 
             owner=repo_owner,
@@ -86,7 +90,7 @@ class PipelineStack(Stack):
         rtb_pipeline_role = iam.Role(self, id="rtbkit_codebuild_role", role_name="rtbkit_codebuild_role",
             assumed_by=iam.CompositePrincipal(
                 iam.ServicePrincipal('codebuild.amazonaws.com'),
-                iam.ServicePrincipal('codepipeline.amazonaws.com'),
+                iam.ServicePrincipal('codepipeline.amazonaws.com')
             ),
             path="/rtbkit/"
         )
@@ -102,10 +106,44 @@ class PipelineStack(Stack):
                 "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
                 "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
                 "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
             },
             source=cb_source,
             role=rtb_pipeline_role,
         )
+
+        cb_generate_project=cb.Project(self, "RTBPipelineGenerateProject",
+            build_spec=cb.BuildSpec.from_asset("/generatespec.yml"),
+            environment={
+                "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
+                "privileged": True,
+            },
+            environment_variables={
+                "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
+                "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
+                "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
+            },
+            source=cb_source,
+            role=rtb_pipeline_role,
+            
+        )
+
+        cb_bidder_project=cb.Project(self, "RTBPipelineDeployBidderProject",
+                    build_spec=cb.BuildSpec.from_asset("/bidderspec.yml"),
+                    environment={
+                        "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
+                        "privileged": True,
+                    },
+                    environment_variables={
+                        "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
+                        "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
+                        "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                        "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
+                    },
+                    source=cb_source,
+                    role=rtb_pipeline_role,
+                )
 
 
         pipeline = cp.Pipeline(
@@ -120,6 +158,30 @@ class PipelineStack(Stack):
                             action_name="Build",
                             # Configure your project here
                             project=cb_project,
+                            input=source_artifact,
+                            role=rtb_pipeline_role
+                        ),
+                    ],
+                ),
+                cp.StageProps(
+                    stage_name="Generate",
+                    actions=[
+                        cpa.CodeBuildAction(
+                            action_name="Generate",
+                            # Configure your project here
+                            project=cb_generate_project,
+                            input=source_artifact,
+                            role=rtb_pipeline_role,
+                        )
+                    ],
+                ),
+                cp.StageProps(
+                    stage_name="Deploy",
+                    actions=[
+                        cpa.CodeBuildAction(
+                            action_name="Deploy",
+                            # Configure your project here
+                            project=cb_bidder_project,
                             input=source_artifact,
                             role=rtb_pipeline_role,
                         )
@@ -150,7 +212,10 @@ class PipelineStack(Stack):
                     "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
                     "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
                     "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
-                    "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"}
+                    "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess",
+                    "arn:aws:iam::aws:policy/AWSMarketplaceFullAccess",
+                    "arn:aws:iam::aws:policy/AWSMarketplaceManageSubscriptions",
+                    "arn:aws:iam::aws:policy/AWSMarketplaceGetEntitlements"}
         
         for i,arn in enumerate(managed_policy_arns):
             mananged_policy = iam.ManagedPolicy.from_managed_policy_arn(
