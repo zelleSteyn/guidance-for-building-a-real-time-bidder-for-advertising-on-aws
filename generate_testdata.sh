@@ -66,7 +66,7 @@ if ! sh -c "echo $USE_DATAGEN | grep -q -E '^(yes|no)$'" ; then
     exit 1
 fi
 export UNID=$7
-export DYNAMODB_TABLENAME_PREFIX = ${STACK_NAME}_${UNID}_
+export DYNAMODB_TABLENAME_PREFIX="${STACK_NAME}_${UNID}_"
 
 if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
     echo "[Setup] Deploying the Aerospike cluster"
