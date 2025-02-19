@@ -113,7 +113,7 @@ class PipelineStack(Stack):
         )
 
         cb_generate_project=cb.Project(self, "RTBPipelineGenerateProject",
-            build_spec=cb.BuildSpec.from_asset("/generatespec.yml"),
+            build_spec=cb.BuildSpec.from_asset("../../generatespec.yml"),
             environment={
                 "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
                 "privileged": True,
@@ -130,7 +130,7 @@ class PipelineStack(Stack):
         )
 
         cb_bidder_project=cb.Project(self, "RTBPipelineDeployBidderProject",
-                    build_spec=cb.BuildSpec.from_asset("/bidderspec.yml"),
+                    build_spec=cb.BuildSpec.from_asset("../../bidderspec.yml"),
                     environment={
                         "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
                         "privileged": True,
