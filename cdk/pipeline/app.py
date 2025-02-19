@@ -12,7 +12,7 @@ from pipeline.pipeline_stack import PipelineStack
 app = cdk.App()
 # pass stage as input as needed
 pipeline_stack = PipelineStack(app, 
-                               "RTBPipelineStack",
+                               "RTBStack",
                                 env=cdk.Environment(
                                     account=os.environ["CDK_DEFAULT_ACCOUNT"],
                                     region=os.environ["CDK_DEFAULT_REGION"]),
