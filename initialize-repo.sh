@@ -115,7 +115,7 @@ export EKS_ACCESS_ROLE_ARN=`aws cloudformation describe-stacks --stack-name ${ST
 export AWS_ECR_NVME=`aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EksNvmeProvisionerRepository") | .OutputValue'`
 #export AWS_LOAD_GENERATOR = `aws cloudformation describe-stacks --stack-name ${STACK_NAME} --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey=="EksNvmeProvisionerRepository") | .OutputValue'`
 
-export DYNAMODB_TABLENAME_PREFIX = ${STACK_NAME}_${UNID}_
+export DYNAMODB_TABLENAME_PREFIX = '${STACK_NAME}_${UNID}_'
 # test helm version release 3.8.2 is needed for eks 1.21 k8s
 helm version
 
