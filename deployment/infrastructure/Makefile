@@ -399,8 +399,8 @@ dynamodb@datagen: ## Run datagen to load data on the Aerospike cluster
 		kubectl wait --for=condition=Complete --timeout=-1s job/$$job-${UNIQUEID} && kubectl delete job $$job-${UNIQUEID} ; \
 	done
 	for i in $$(seq $(DATAGEN_DEVICES_PARALLELISM)) ; do \
-		kubectl wait --for=condition=Complete --timeout=-1s job/generate-devices-${UNIQUEID}-$$i && \
-		kubectl delete job generate-devices-${UNIQUEID}-$$i ; \
+		kubectl wait --for=condition=Complete --timeout=-1s job/generate-devices-${UNIQUEID} && \
+		kubectl delete job generate-devices-${UNIQUEID} ; \
 	done
 
 cfn_nag@run: ## Run cfn_nag to find security issues in the Cloudformation stacks.
