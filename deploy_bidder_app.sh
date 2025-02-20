@@ -55,6 +55,9 @@ fi
 #read USE_LOAD_GENERATOR
 
 export USE_LOAD_GENERATOR=$6
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
 
 if ! sh -c "echo $USE_LOAD_GENERATOR | grep -q -E '^(yes|no)$'" ; then
     echo "Invalid input: ${USE_LOAD_GENERATOR} instead of (yes|no)"
