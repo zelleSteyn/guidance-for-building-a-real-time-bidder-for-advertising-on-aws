@@ -92,19 +92,20 @@ if aws s3api head-bucket --bucket ${CF_BUCKET_NAME} --region ${AWS_REGION} 2>&1 
 fi
 
 echo "[Setup] Deploying the Cloudformation stack..."
-aws cloudformation package \
-    --template-file $(pwd)/deployment/infrastructure/codekit.yaml \
-    --output-template-file ${CF_TEMP_FILE} \
-    --s3-bucket ${CF_BUCKET_NAME}
+# aws cloudformation package \
+#     --template-file $(pwd)/deployment/infrastructure/codekit.yaml \
+#     --output-template-file ${CF_TEMP_FILE} \
+#     --s3-bucket ${CF_BUCKET_NAME}
 
-aws cloudformation deploy \
-    --template-file ${CF_TEMP_FILE} \
-    --stack-name "${STACK_NAME}" \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides \
-        "ProjectName=${STACK_NAME}" \
-        "Variant=Codekit${VARIANT}" \
-        "UniqueId=${UNID}"
+# aws cloudformation deploy \
+#     --template-file ${CF_TEMP_FILE} \
+#     --stack-name "${STACK_NAME}" \
+#     --capabilities CAPABILITY_NAMED_IAM \
+#     --parameter-overrides \
+#         "ProjectName=${STACK_NAME}" \
+#         "Variant=Codekit${VARIANT}" \
+#         "UniqueId=${UNID}"
+#--commented out above just temporarily since the stack drifted
 
 
 

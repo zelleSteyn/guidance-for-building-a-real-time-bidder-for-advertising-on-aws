@@ -150,7 +150,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}_${UniqueId}_dev-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}${UniqueId}_dev'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -187,7 +187,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}_${UniqueId}_audience_campaigns-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}${UniqueId}_audience_campaigns'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -222,7 +222,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}_${UniqueId}_campaign_budget'
+      TableName: !Sub '${TableNamePrefix}${UniqueId}_campaign_budget'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
 
       SSESpecification:
@@ -258,7 +258,7 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
-      TableName: !Sub '${TableNamePrefix}_${UniqueId}_budget-${UniqueId}'
+      TableName: !Sub '${TableNamePrefix}${UniqueId}_budget'
       BillingMode: !FindInMap [ VariantConfig, !Ref Variant, BillingMode ]
       SSESpecification:
         SSEType: KMS
@@ -419,3 +419,102 @@ Resources:
               - 'kms:Decrypt'
               - 'kms:ReEncrypt*'
             Resource: '*'
+
+Outputs:
+  DeviceAudiencesTable:
+    Value: !Ref DeviceAudiencesTable
+  AudienceCampaignsTable:
+    Value: !Ref AudienceCampaignsTable
+
+  CampaignBudgetTable:
+    Value: !Ref CampaignBudgetTable
+
+  BudgetTable:
+    Value: !Ref BudgetTable
+
+  DynamoDBTableEncryptionKey:
+    Value: !Ref DynamoDBTableEncryptionKey
+
+  DeviceAudiencesReadMinCapacity:        
+    Value: !FindInMap [ VariantConfig, !Ref Variant, DevicesReadMinCU ]
+  DeviceAudiencesReadMaxCapacity:        
+    Value: !FindInMap [ VariantConfig, !Ref Variant, DevicesReadMaxCU ]
+  DeviceAudiencesWriteMinCapacity:       
+    Value: !FindInMap [ VariantConfig, !Ref Variant, DevicesWriteMinCU ]
+  DeviceAudiencesWriteMaxCapacity:       
+    Value: !FindInMap [ VariantConfig, !Ref Variant, DevicesWriteMaxCU ]
+  DeviceAudiencesReadTargetUtilization:  
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  DeviceAudiencesReadScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  DeviceAudiencesReadScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+  DeviceAudiencesWriteTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  DeviceAudiencesWriteScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  DeviceAudiencesWriteScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+
+  AudienceCampaignsReadMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, AudiencesReadMinCU ]
+  AudienceCampaignsReadMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, AudiencesReadMaxCU ]
+  AudienceCampaignsWriteMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, AudiencesWriteMinCU ]
+  AudienceCampaignsWriteMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, AudiencesWriteMaxCU ]
+  AudienceCampaignsReadTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  AudienceCampaignsReadScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  AudienceCampaignsReadScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+  AudienceCampaignsWriteTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  AudienceCampaignsWriteScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  AudienceCampaignsWriteScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+
+  CampaignBudgetReadMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, CampaignsReadMinCU ]
+  CampaignBudgetReadMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, CampaignsReadMaxCU ]
+  CampaignBudgetWriteMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, CampaignsWriteMinCU ]
+  CampaignBudgetWriteMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, CampaignsWriteMaxCU ]
+  CampaignBudgetReadTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  CampaignBudgetReadScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  CampaignBudgetReadScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+  CampaignBudgetWriteTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  CampaignBudgetWriteScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  CampaignBudgetWriteScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+
+  BudgetsReadMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, BudgetsReadMinCU ]
+  BudgetsReadMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, BudgetsReadMaxCU ]
+  BudgetsWriteMinCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, BudgetsWriteMinCU ]
+  BudgetsWriteMaxCapacity:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, BudgetsWriteMaxCU ]
+  BudgetsReadTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  BudgetsReadScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  BudgetsReadScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
+  BudgetsWriteTargetUtilization:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, TargetUtilization ]
+  BudgetsWriteScaleInCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleInCooldown ]
+  BudgetsWriteScaleOutCooldown:    
+    Value: !FindInMap [ VariantConfig, !Ref Variant, ScaleOutCooldown ]
