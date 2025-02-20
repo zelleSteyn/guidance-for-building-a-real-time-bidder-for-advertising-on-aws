@@ -67,6 +67,12 @@ if ! sh -c "echo $USE_DATAGEN | grep -q -E '^(yes|no)$'" ; then
     exit 1
 fi
 export BIDDER_OVERLAY_TEMP=$(mktemp)
+echo "[Setup] Granting access to the EKS cluster..."
+make eks@grant-access EKS_ACCESS_ROLE_ARN=${EKS_ACCESS_ROLE_ARN} EKS_WORKER_ROLE_ARN=${EKS_WORKER_ROLE_ARN}
+
+echo "[Setup] Login to the ECR registries..."
+make ecr@login
+
 envsubst < deployment/infrastructure/deployment/bidder/overlay-codekit-${VARIANT,,}.yaml.tmpl >${BIDDER_OVERLAY_TEMP}
 make eks@deploybidder VALUES=${BIDDER_OVERLAY_TEMP}
 

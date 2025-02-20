@@ -74,6 +74,11 @@ if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then
     make aerospike@deploy AEROSPIKE_VARIANT="benchmark"
     make aerospike@wait
 fi
+echo "[Setup] Granting access to the EKS cluster..."
+make eks@grant-access EKS_ACCESS_ROLE_ARN=${EKS_ACCESS_ROLE_ARN} EKS_WORKER_ROLE_ARN=${EKS_WORKER_ROLE_ARN}
+
+echo "[Setup] Login to the ECR registries..."
+make ecr@login
 
 kubectl delete jobs --field-selector status.successful=1
 kubectl delete jobs --field-selector status.successful=0
