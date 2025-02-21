@@ -6,7 +6,7 @@ NVME_PROVISIONER_TAG = latest
 
 nvme-provisioner@makepwfileandlogintodocker:
 	echo $(DOCKER_TOKEN) > /tmp/password.txt 
-	cat /tmp/password.txt | docker login -username $(DOCKER_USER) --password-stdin
+	cat /tmp/password.txt | docker login --username $(DOCKER_USER) --password-stdin
 
 buildx@install:
 	docker --version
