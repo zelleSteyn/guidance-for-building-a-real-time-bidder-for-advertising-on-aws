@@ -71,7 +71,8 @@ export AWS_SECRET_ACCESS_KEY=`echo $CREDS_JSON | jq '.Credentials.SecretAccessKe
 export AWS_SESSION_TOKEN=`echo $CREDS_JSON | jq '.Credentials.SessionToken' | tr -d '"'`
 CREDS_JSON=""
 make eks@grant-access
-
+kubectl delete jobs --field-selector status.successful=1
+kubectl delete jobs --field-selector status.successful=0
 # connect to cluster
 # make eks@use
 kubectl get pods

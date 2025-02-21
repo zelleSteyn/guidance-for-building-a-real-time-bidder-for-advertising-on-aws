@@ -74,6 +74,9 @@ export CF_TEMP_FILE=`mktemp -p ${CF_TEMP_DIR}`
 
 export UNID=$7
 echo "[Setup] ${UNID} is the unique identifier for the stack..."
+
+export SKIP_STACK_UPDATE=$8 #override stack update in case of drift
+
 #$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 
 touch ${CF_TEMP_FILE}
@@ -91,21 +94,39 @@ if aws s3api head-bucket --bucket ${CF_BUCKET_NAME} --region ${AWS_REGION} 2>&1 
     --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
 fi
 
-echo "[Setup] Deploying the Cloudformation stack..."
-# aws cloudformation package \
-#     --template-file $(pwd)/deployment/infrastructure/codekit.yaml \
-#     --output-template-file ${CF_TEMP_FILE} \
-#     --s3-bucket ${CF_BUCKET_NAME}
+if ${SKIP_STACK_UPDATE} ; then
+    echo "[Setup] Skipping stack update..."
+else
+    echo "[Setup] Updating the Cloudformation stack..."
+    aws cloudformation package \
+        --template-file $(pwd)/deployment/infrastructure/codekit.yaml \
+        --output-template-file ${CF_TEMP_FILE} \
+        --s3-bucket ${CF_BUCKET_NAME}
 
-# aws cloudformation deploy \
-#     --template-file ${CF_TEMP_FILE} \
-#     --stack-name "${STACK_NAME}" \
-#     --capabilities CAPABILITY_NAMED_IAM \
-#     --parameter-overrides \
-#         "ProjectName=${STACK_NAME}" \
-#         "Variant=Codekit${VARIANT}" \
-#         "UniqueId=${UNID}"
-#--commented out above just temporarily since the stack drifted
+    aws cloudformation deploy \
+        --template-file ${CF_TEMP_FILE} \
+        --stack-name "${STACK_NAME}" \
+        --capabilities CAPABILITY_NAMED_IAM \
+        --parameter-overrides \
+            "ProjectName=${STACK_NAME}" \
+            "Variant=Codekit${VARIANT}" \
+            "UniqueId=${UNID}"
+fi
+
+echo "[Setup] Deploying the Cloudformation stack..."
+aws cloudformation package \
+    --template-file $(pwd)/deployment/infrastructure/codekit.yaml \
+    --output-template-file ${CF_TEMP_FILE} \
+    --s3-bucket ${CF_BUCKET_NAME}
+
+aws cloudformation deploy \
+    --template-file ${CF_TEMP_FILE} \
+    --stack-name "${STACK_NAME}" \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameter-overrides \
+        "ProjectName=${STACK_NAME}" \
+        "Variant=Codekit${VARIANT}" \
+        "UniqueId=${UNID}"
 
 
 
@@ -141,8 +162,8 @@ echo "[Setup] Building the model on ARM64 and pushing it to the ECR registry..."
 #make model@push IMAGE_PREFIX="${STACK_NAME}-"
 
 echo "[Setup] Building the nvme-provisioner and pushing it to the ECR registry..."
-#make buildx@install
-#make nvme-provisioner@build
+make buildx@install
+make nvme-provisioner@build
 #make nvme-provisioner@push
 
 if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then

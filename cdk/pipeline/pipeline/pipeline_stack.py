@@ -10,18 +10,20 @@ from aws_cdk import (
     SecretValue
 )
 from constructs import Construct
+
+
 class PipelineStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, stage: str="dev" , **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, stage: str = "dev", **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         acc = os.getenv("CDK_DEFAULT_ACCOUNT")
         reg = os.getenv("CDK_DEFAULT_REGION")
-        
+
         # Get environment-specific context
         env_context = self.node.try_get_context(stage)
         shared_context = self.node.try_get_context('shared')
-        
+
         if not shared_context["REPO_OWNER"]:
             repo_owner = "aws-solutions-library-samples"
         else:
@@ -37,18 +39,19 @@ class PipelineStack(Stack):
         else:
             # fix for issue #59 - Bucket name that prefixes stack name needs to be lowercase
             # and cannot have underscores
-            root_stack_name = shared_context["ROOT_STACK_NAME"].lower().replace("_", "-")
-        
+            root_stack_name = shared_context["ROOT_STACK_NAME"].lower().replace(
+                "_", "-")
+
         if not shared_context["STACK_VARIANT"]:
             stack_variant = "DynamoDB"
         else:
             stack_variant = shared_context["STACK_VARIANT"]
-        
+
         if not env_context["REPO_BRANCH"]:
             repo_branch = "main"
         else:
             repo_branch = env_context["REPO_BRANCH"]
-        
+
         if not env_context["GITHUB_TOKEN_SECRET_ID"]:
             secret_id = "rtbkit-github-token"
         else:
@@ -65,7 +68,8 @@ class PipelineStack(Stack):
             webhook=True,
             webhook_triggers_batch_build=True,
             webhook_filters=[
-                cb.FilterGroup.in_event_of(cb.EventAction.PUSH).and_branch_is(repo_branch).and_commit_message_is("the commit message"),
+                cb.FilterGroup.in_event_of(cb.EventAction.PUSH).and_branch_is(
+                    repo_branch).and_commit_message_is("the commit message"),
                 # cb.FilterGroup.in_event_of(cb.EventAction.RELEASED).and_branch_is(repo_branch)
             ]
         )
@@ -76,10 +80,10 @@ class PipelineStack(Stack):
         cloud_assembly_artifact = cp.Artifact()
 
         # unique id used throughout the stack for ensuring unique names
-        unique_id=uuid.uuid4().hex[:4]
+        unique_id = uuid.uuid4().hex[:4]
 
-        source_action=cpa.GitHubSourceAction(
-            action_name='GitHubSourceAction', 
+        source_action = cpa.GitHubSourceAction(
+            action_name='GitHubSourceAction',
             owner=repo_owner,
             repo=repo_name,
             oauth_token=SecretValue.secrets_manager(secret_id),
@@ -88,63 +92,67 @@ class PipelineStack(Stack):
         )
 
         rtb_pipeline_role = iam.Role(self, id="rtbkit_codebuild_role", role_name="rtbkit_codebuild_role",
-            assumed_by=iam.CompositePrincipal(
-                iam.ServicePrincipal('codebuild.amazonaws.com'),
-                iam.ServicePrincipal('codepipeline.amazonaws.com')
-            ),
-            path="/rtbkit/"
-        )
+                                     assumed_by=iam.CompositePrincipal(
+                                         iam.ServicePrincipal(
+                                             'codebuild.amazonaws.com'),
+                                         iam.ServicePrincipal(
+                                             'codepipeline.amazonaws.com')
+                                     ),
+                                     path="/rtbkit/"
+                                     )
         # Fix for issue #61
         rtb_pipeline_role = self.add_managed_policies(rtb_pipeline_role)
 
-        cb_project=cb.Project(self, "RTBPipelineProject",
-            environment={
-                "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
-                "privileged": True,
-            },
-            environment_variables={
-                "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
-                "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
-                "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
-                "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
-            },
-            source=cb_source,
-            role=rtb_pipeline_role,
-        )
+        cb_project = cb.Project(self, "RTBPipelineProject",
+                                environment={
+                                    "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
+                                    "privileged": True,
+                                },
+                                environment_variables={
+                                    "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
+                                    "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
+                                    "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                                    "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id),
+                                    "SKIP_STACK_UPDATE": cb.BuildEnvironmentVariable(value=self.node.try_get_context('skip_stack_update') or "no")
+                                },
+                                source=cb_source,
+                                role=rtb_pipeline_role,
+                                )
 
-        cb_generate_project=cb.Project(self, "RTBPipelineGenerateProject",
-            build_spec=cb.BuildSpec.from_asset("../../generatespec.yml"),
-            environment={
-                "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
-                "privileged": True,
-            },
-            environment_variables={
-                "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
-                "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
-                "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
-                "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
-            },
-            source=cb_source,
-            role=rtb_pipeline_role,
-            
-        )
+        cb_generate_project = cb.Project(self, "RTBPipelineGenerateProject",
+                                         build_spec=cb.BuildSpec.from_asset(
+                                             "../../generatespec.yml"),
+                                         environment={
+                                             "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
+                                             "privileged": True,
+                                         },
+                                         environment_variables={
+                                             "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
+                                             "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
+                                             "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                                             "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id)
+                                         },
+                                         source=cb_source,
+                                         role=rtb_pipeline_role,
 
-        cb_bidder_project=cb.Project(self, "RTBPipelineDeployBidderProject",
-                    build_spec=cb.BuildSpec.from_asset("../../bidderspec.yml"),
-                    environment={
-                        "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
-                        "privileged": True,
-                    },
-                    environment_variables={
-                        "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
-                        "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
-                        "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
-                        "UNIQUEID": cb.BuildEnvironmentVariable(value = unique_id)
-                    },
-                    source=cb_source,
-                    role=rtb_pipeline_role,
-                )
+                                         )
 
+        cb_bidder_project = cb.Project(self, "RTBPipelineDeployBidderProject",
+                                       build_spec=cb.BuildSpec.from_asset(
+                                           "../../bidderspec.yml"),
+                                       environment={
+                                           "build_image": cb.LinuxBuildImage.AMAZON_LINUX_2_ARM_3,
+                                           "privileged": True,
+                                       },
+                                       environment_variables={
+                                           "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
+                                           "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
+                                           "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
+                                           "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id)
+                                       },
+                                       source=cb_source,
+                                       role=rtb_pipeline_role,
+                                       )
 
         pipeline = cp.Pipeline(
             self, 'rtb-pipeline',
@@ -193,31 +201,34 @@ class PipelineStack(Stack):
 
         # https://stackoverflow.com/questions/63659802/cannot-assume-role-by-code-pipeline-on-code-pipeline-action-aws-cdk
         cfn_pipeline = pipeline.node.default_child
-        cfn_pipeline.add_deletion_override("Properties.Stages.1.Actions.0.RoleArn")
-        cfn_pipeline.add_deletion_override("Properties.Stages.2.Actions.0.RoleArn")
-        cfn_pipeline.add_deletion_override("Properties.Stages.3.Actions.0.RoleArn")
+        cfn_pipeline.add_deletion_override(
+            "Properties.Stages.1.Actions.0.RoleArn")
+        cfn_pipeline.add_deletion_override(
+            "Properties.Stages.2.Actions.0.RoleArn")
+        cfn_pipeline.add_deletion_override(
+            "Properties.Stages.3.Actions.0.RoleArn")
 
         cfn_build = cb_project.node.default_child
         cfn_build.add_override("Properties.Environment.Type", "ARM_CONTAINER")
-    
+
     # fix for issue #61
     def add_managed_policies(self, iamrole: iam.Role) -> iam.Role:
         """
         loops through the list of role arns and add it to the input role object and retuns the same back
         """
-        managed_policy_arns={"arn:aws:iam::aws:policy/AdministratorAccess",
-                    "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
-                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-                    "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
-                    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
-                    "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
-                    "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
-                    "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess",
-                    "arn:aws:iam::aws:policy/AWSMarketplaceFullAccess",
-                    "arn:aws:iam::aws:policy/AWSMarketplaceManageSubscriptions",
-                    "arn:aws:iam::aws:policy/AWSMarketplaceGetEntitlements"}
-        
-        for i,arn in enumerate(managed_policy_arns):
+        managed_policy_arns = {"arn:aws:iam::aws:policy/AdministratorAccess",
+                               "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+                               "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+                               "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
+                               "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+                               "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
+                               "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
+                               "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess",
+                               "arn:aws:iam::aws:policy/AWSMarketplaceFullAccess",
+                               "arn:aws:iam::aws:policy/AWSMarketplaceManageSubscriptions",
+                               "arn:aws:iam::aws:policy/AWSMarketplaceGetEntitlements"}
+
+        for i, arn in enumerate(managed_policy_arns):
             mananged_policy = iam.ManagedPolicy.from_managed_policy_arn(
                 scope=self,
                 id=f"rtbkit_admin_policy_{i}",
