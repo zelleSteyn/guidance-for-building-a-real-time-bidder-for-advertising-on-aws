@@ -35,7 +35,6 @@ model@build-builder:
 				 $(MODEL_APP_ROOT)
 
 model@pull: ## Pulls the image to use as cache source or builds an empty one of such name if the pull fails
-	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
 	docker pull $(AWS_ECR_REGISTRY)/model-builder:$(MODEL_CACHE_TAG) || printf 'FROM scratch\nENV X=1\n' | docker build --tag $(AWS_ECR_REGISTRY)/model-builder:$(MODEL_CACHE_TAG) -
 
 ################################################

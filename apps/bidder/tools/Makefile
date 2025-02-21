@@ -35,7 +35,7 @@ bidder@build-builder:
 				 $(BIDDER_APP_ROOT)
 
 bidder@pull: ## Pulls the image to use as cache source or builds an empty one of such name if the pull fails
-	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
+	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN) --password-stdin
 	docker pull $(AWS_ECR_REGISTRY)/bidder-builder:$(BIDDER_CACHE_TAG) || printf 'FROM scratch\nENV X=1\n' | docker build --tag $(AWS_ECR_REGISTRY)/bidder-builder:$(BIDDER_CACHE_TAG) -
 
 ################################################

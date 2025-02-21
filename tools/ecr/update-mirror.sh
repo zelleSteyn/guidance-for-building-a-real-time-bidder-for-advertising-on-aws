@@ -35,7 +35,6 @@ for image in ${images}; do
     arch_annotations+=("--arch ${arch} ${target_image} $arch_image")
 
 #    docker pull "${image}"
-    docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
     docker pull "--platform=${arch}" "${image}"
     docker tag "${image}" "${arch_image}"
     docker push "${arch_image}"

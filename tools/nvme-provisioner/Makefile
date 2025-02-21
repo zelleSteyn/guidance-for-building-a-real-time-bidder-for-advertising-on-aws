@@ -4,15 +4,17 @@ include $(dir $(lastword $(MAKEFILE_LIST)))/../../config.mk
 NVME_PROVISIONER_IMAGE = ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_ECR_NVME}
 NVME_PROVISIONER_TAG = latest
 
+nvme-provisioner@makepwfileandlogintodocker:
+	echo $(DOCKER_TOKEN) > /tmp/password.txt 
+	cat /tmp/password.txt | docker login -username $(DOCKER_USER) --password-stdin
+
 buildx@install:
-	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
 	docker --version
 	mkdir -vp ~/.docker/cli-plugins/
 	curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-arm-v6" > ~/.docker/cli-plugins/docker-buildx
 	chmod a+x ~/.docker/cli-plugins/docker-buildx
 
 nvme-provisioner@build:
-	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
 	cd tools/nvme-provisioner; \
 	pwd; ls; \
 	docker buildx create --name multiarch --use; \
