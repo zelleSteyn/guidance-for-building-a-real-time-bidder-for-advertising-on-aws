@@ -159,7 +159,7 @@ echo "[Setup] Building the basic service on ARM64 and pushing it to the ECR regi
 make eks@provision-codekit-`echo ${VARIANT,,}`
 
 echo "[Setup] Building the bidder on ARM64 and pushing it to the ECR registry..."
- make nvme-provisioner@makepwfileandlogintodocker DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
+ make nvme-provisioner@logintodocker # DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
  make buildx@install
  make bidder@build IMAGE_PREFIX="${STACK_NAME}-"
  make bidder@push IMAGE_PREFIX="${STACK_NAME}-"
@@ -169,7 +169,7 @@ echo "[Setup] Building the model on ARM64 and pushing it to the ECR registry..."
 #make model@push IMAGE_PREFIX="${STACK_NAME}-"
 
 echo "[Setup] Building the nvme-provisioner and pushing it to the ECR registry..."
-make nvme-provisioner@makepwfileandlogintodocker DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
+make nvme-provisioner@logintodocker # DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
 make buildx@install 
 make nvme-provisioner@build
 #make nvme-provisioner@push

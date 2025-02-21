@@ -55,13 +55,6 @@ The Real-Time Bidder Solution on AWS consists of 5 modules:
     3. Enter a name for the secret. This name is required in the cdk context file later on.
     4. Leave the rest as default and store the secret.
 
-7. Create two more secrets to store the your Docker login credentials (if you don't have an account, go create one for free at http://docker.com, go to Account Settings, and create a personal access token [shortcut](https://app.docker.com/settings/personal-access-tokens)).
-    1. Select `Store a new secret`, click `Other type of secret`, use the `plaintext` option.
-    2. Delete the json and write your docker username
-    3. Enter a name for the secret. This name is required in the cdk context file later on (the default is `docker-user`)
-    4. Leave the rest as default and store the secret.
-    5. Do the same to create a secret for your personal access token  (the default is `docker-token`)
-
 ### Service Limits
 
 Increase the following service limits via Service Quotas section in AWS Console.
@@ -96,14 +89,12 @@ Increase the following service limits via Service Quotas section in AWS Console.
     cp cdk/pipeline/cdk.context.json.example cdk/pipeline/cdk.context.json
     ```
 
-5.  Update the `GITHUB_TOKEN_SECRET_ID`, `DOCKER_USER`, `DOCKER_TOKEN`, `ROOT_STACK_NAME`, and `STACK_VARIANT` (DynamoDB/Aerospike) and variables on the `cdk.context.json`:
+5.  Update the `GITHUB_TOKEN_SECRET_ID`, `ROOT_STACK_NAME`, and `STACK_VARIANT` (DynamoDB/Aerospike) and variables on the `cdk.context.json`:
     ```
     {
         "dev": {
             "REPO_BRANCH":"main",
-            "GITHUB_TOKEN_SECRET_ID": "rtbkit-github-token" #-- AWS SecretManager secret name,
-            "DOCKER_USER":"docker-user" #-- AWS SecretManager secret name,
-            "DOCKER_TOKEN":"dockr-token" #-- AWS SecretManager secret name
+            "GITHUB_TOKEN_SECRET_ID": "rtbkit-github-token" #-- AWS SecretManager secret name
         },
         "shared": {
             "ROOT_STACK_NAME": "aws-rtbkit",
