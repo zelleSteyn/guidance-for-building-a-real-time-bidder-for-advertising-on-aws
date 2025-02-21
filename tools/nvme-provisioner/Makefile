@@ -5,8 +5,9 @@ NVME_PROVISIONER_IMAGE = ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$
 NVME_PROVISIONER_TAG = latest
 
 nvme-provisioner@makepwfileandlogintodocker:
-	echo $(DOCKER_TOKEN) > /tmp/password.txt 
-	cat /tmp/password.txt | docker login --username $(DOCKER_USER) --password-stdin
+#	echo $(DOCKER_TOKEN) > /tmp/password.txt 
+#	cat /tmp/password.txt | docker login --username $(DOCKER_USER) --password-stdin
+	aws ecr-public get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_PUBLIC_ECR_REGISTRY)
 
 buildx@install:
 	docker --version
