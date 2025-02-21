@@ -362,6 +362,7 @@ aerospike@datagen: DATAGEN_DEVICES_ITEMS_PER_JOB ?= 10000000
 aerospike@datagen: DATAGEN_DEVICES_PARALLELISM ?= 100
 aerospike@datagen: DATAGEN_CONCURRENCY ?= 32
 aerospike@datagen: export IMAGE_PREFIX=$(STACK_NAME)-
+dynamodb@datagen: UNIQUEID=${UNID}
 aerospike@datagen: ## Run datagen to load data on the Aerospike cluster
 	envsubst < tools/datagen/deployments/k8s/generate_campaigns_aerospike.yaml.tmpl | kubectl apply -f -
 	envsubst < tools/datagen/deployments/k8s/generate_audiences_aerospike.yaml.tmpl | kubectl apply -f -
@@ -371,11 +372,11 @@ aerospike@datagen: ## Run datagen to load data on the Aerospike cluster
 		envsubst < tools/datagen/deployments/k8s/generate_devices_aerospike.yaml.tmpl | kubectl apply -f - ; \
 	done
 	for job in generate-campaigns-aerospike generate-budgets-aerospike generate-audiences-aerospike; do \
-		kubectl wait --for=condition=Complete --timeout=-1s job/$$job && kubectl delete job $$job ; \
+		kubectl wait --for=condition=Complete --timeout=-1s job/$$job-${UNIQUEID} && kubectl delete job $$job-${UNIQUEID} ; \
 	done
 	for i in $$(seq $(DATAGEN_DEVICES_PARALLELISM)) ; do \
-		kubectl wait --for=condition=Complete --timeout=-1s job/generate-devices-aerospike-$$i && \
-		kubectl delete job generate-devices-aerospike-$$i ; \
+		kubectl wait --for=condition=Complete --timeout=-1s job/generate-devices-aerospike-${UNIQUEID} && \
+		kubectl delete job generate-devices-aerospike-${UNIQUEID} ; \
 	done
 
 dynamodb@datagen: DATAGEN_ITEMS_PER_JOB ?= 10000000

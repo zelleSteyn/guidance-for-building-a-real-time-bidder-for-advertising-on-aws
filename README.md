@@ -60,6 +60,7 @@ The Real-Time Bidder Solution on AWS consists of 5 modules:
 Increase the following service limits via Service Quotas section in AWS Console.
 * DynamoDB table Read Capacity Unit (RCU) limit should be increased to 150,000 RCU's from default 40,000 RCU's. The limit is called `Table-level read throughput limit` under the `Amazon DynamoDB` service quota.
 * Kinesis shards limit should be increased to 2048. The limit is called `Shard per Region` under `Amazon Kinesis Data Streams` service quota.
+* IAM `Managed Policies per role` increase to 20
 
 ## Architecture Diagram
 
@@ -143,7 +144,7 @@ Increase the following service limits via Service Quotas section in AWS Console.
 14. Ensure the pre-requisites (`Helm`, `Kubectl` and `jq`) are installed on the local/client machine as per the pre-requisites section above.
     > Tip: The pre-requisites can be installed using the shell script [client-setup.sh](./client-setup.sh). Navigate to the root directory and change the script permissions `chmod 700 client-setup.sh` before running the script.
 
-    >NOTE: Commands for steps 15 - 22 are included in a shell script [run-benchmark.sh](./run-benchmark.sh). Navigate to the directory and change the script permissions `chmod 700 client-setup.sh` if required before running the script.
+    >NOTE: Commands for steps 15 - 22 are included in a shell script [run-benchmark.sh](./run-benchmark.sh). Navigate to the directory and change the script permissions `chmod 700 run-benchmark.sh` if required before running the script.
 
 15. Open a command terminal in your local/client machine, navigate to the repository folder and run the following commands. The following commands will set the variables in your terminal which are used to connect to EKS cluster and run benchmarks:
 

@@ -224,9 +224,7 @@ class PipelineStack(Stack):
                                "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
                                "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
                                "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess",
-                               "arn:aws:iam::aws:policy/AWSMarketplaceFullAccess",
-                               "arn:aws:iam::aws:policy/AWSMarketplaceManageSubscriptions",
-                               "arn:aws:iam::aws:policy/AWSMarketplaceGetEntitlements"}
+                               "arn:aws:iam::aws:policy/AWSMarketplaceFullAccess"}
 
         for i, arn in enumerate(managed_policy_arns):
             mananged_policy = iam.ManagedPolicy.from_managed_policy_arn(
