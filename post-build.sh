@@ -22,7 +22,7 @@ echo "Starting cluster config update."
 if [ -z "$3" ]
 then
     echo "WARNING:AWS CLI Profile not given"
-    output=`aws eks update-cluster-config --region $AWS_REGION --name $RTBKIT_ROOT_STACK_NAME --logging $LoggingConfig 2>&1`
+    output=`aws eks update-cluster-config --region $AWS_REGION --name $RTBKIT_ROOT_STACK_NAME --logging --profile rtb $LoggingConfig 2>&1`
 
 else
     export PROFILE=$3
