@@ -77,6 +77,11 @@ echo "[Setup] ${UNID} is the unique identifier for the stack..."
 
 export SKIP_STACK_UPDATE=$8 #override stack update in case of drift
 
+if ! sh -c "echo $SKIP_STACK_UPDATE | grep -q -E '^(yes|no|)$'" ; then
+    echo "Invalid input: ${SKIP_STACK_UPDATE} instead of (yes|no). Defaulting to 'no'..."
+    SKIP_STACK_UPDATE="no"
+fi
+
 #$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
 
 touch ${CF_TEMP_FILE}
@@ -162,8 +167,8 @@ echo "[Setup] Building the model on ARM64 and pushing it to the ECR registry..."
 #make model@push IMAGE_PREFIX="${STACK_NAME}-"
 
 echo "[Setup] Building the nvme-provisioner and pushing it to the ECR registry..."
-make buildx@install
-make nvme-provisioner@build
+make buildx@install DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
+make nvme-provisioner@build DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
 #make nvme-provisioner@push
 
 if sh -c "echo $VARIANT | grep -q -E '^(Aerospike)$'" ; then

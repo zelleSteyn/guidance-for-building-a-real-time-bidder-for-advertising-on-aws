@@ -2,3 +2,5 @@
 .venv
 cdk.context.json
 .vscode
+get_helm.sh
+kubectl

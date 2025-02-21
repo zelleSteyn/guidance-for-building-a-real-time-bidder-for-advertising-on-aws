@@ -1,7 +1,9 @@
 {
     "dev": {
         "REPO_BRANCH":"main",
-        "GITHUB_TOKEN_SECRET_ID": "rtbkit-github-token"
+        "GITHUB_TOKEN_SECRET_ID": "rtbkit-github-token",
+        "DOCKER_USER":"docker-user",
+        "DOCKER_TOKEN":"dockr-token"
     },
     "shared": {
         "ROOT_STACK_NAME": "aws-rtbkit",
