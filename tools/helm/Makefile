@@ -18,6 +18,7 @@ helm@push: ## Pushes docker image with the helm bidder tests
 	docker push $(HELM_IMAGE_TAG)
 
 helm@pull: ## Pulls the image to use as cache source or builds an empty one of such name if the pull fails
+	docker login -u $(DOCKER_USER) -p $(DOCKER_TOKEN)
 	docker pull $(AWS_ECR_REGISTRY)/helm:$(HELM_CACHE_TAG) || printf 'FROM scratch\nENV X=1\n' | docker build --tag $(AWS_ECR_REGISTRY)/helm:$(HELM_CACHE_TAG) -
 
 helm@tag-latest:

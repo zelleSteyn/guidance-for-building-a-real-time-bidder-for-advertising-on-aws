@@ -61,13 +61,11 @@ class PipelineStack(Stack):
             docker_user = "docker-user"
         else:
             docker_user = env_context["DOCKER_USER_SECRET_ID"]
-        
+
         if not env_context["DOCKER_TOKEN_SECRET_ID"]:
             docker_token = "docker-token"
         else:
             docker_token = env_context["DOCKER_TOKEN_SECRET_ID"]
-        
-        
 
         # fix for issue #79 code commit deprecation
         # the solution now points to the opensource github repo by default
@@ -144,7 +142,9 @@ class PipelineStack(Stack):
                                              "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
                                              "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
                                              "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
-                                             "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id)
+                                             "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id),
+                                             "DOCKER_USER": cb.BuildEnvironmentVariable(value=SecretValue.secrets_manager(docker_user).unsafe_unwrap()),
+                                             "DOCKER_TOKEN": cb.BuildEnvironmentVariable(value=SecretValue.secrets_manager(docker_token).unsafe_unwrap())
                                          },
                                          source=cb_source,
                                          role=rtb_pipeline_role,
@@ -162,7 +162,9 @@ class PipelineStack(Stack):
                                            "AWS_ACCOUNT_ID": cb.BuildEnvironmentVariable(value=acc),
                                            "RTBKIT_ROOT_STACK_NAME": (cb.BuildEnvironmentVariable(value=root_stack_name)),
                                            "RTBKIT_VARIANT": cb.BuildEnvironmentVariable(value=stack_variant),
-                                           "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id)
+                                           "UNIQUEID": cb.BuildEnvironmentVariable(value=unique_id),
+                                           "DOCKER_USER": cb.BuildEnvironmentVariable(value=SecretValue.secrets_manager(docker_user).unsafe_unwrap()),
+                                           "DOCKER_TOKEN": cb.BuildEnvironmentVariable(value=SecretValue.secrets_manager(docker_token).unsafe_unwrap())
                                        },
                                        source=cb_source,
                                        role=rtb_pipeline_role,

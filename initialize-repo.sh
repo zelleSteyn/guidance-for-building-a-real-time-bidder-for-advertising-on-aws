@@ -159,7 +159,7 @@ echo "[Setup] Building the basic service on ARM64 and pushing it to the ECR regi
 make eks@provision-codekit-`echo ${VARIANT,,}`
 
 echo "[Setup] Building the bidder on ARM64 and pushing it to the ECR registry..."
- make bidder@build IMAGE_PREFIX="${STACK_NAME}-"
+ make bidder@build IMAGE_PREFIX="${STACK_NAME}-" DOCKER_USER=${DOCKER_USER} DOCKER_TOKEN=${DOCKER_TOKEN}
  make bidder@push IMAGE_PREFIX="${STACK_NAME}-"
 
 echo "[Setup] Building the model on ARM64 and pushing it to the ECR registry..."
