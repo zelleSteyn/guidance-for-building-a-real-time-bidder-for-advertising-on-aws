@@ -8,10 +8,10 @@ env:
 phases:
   install:
     commands:
-  build:
-    commands:
       - chmod +x ./generate_testdata.sh && ./generate_testdata.sh ${AWS_ACCOUNT_ID} ${AWS_REGION} ${RTBKIT_ROOT_STACK_NAME} ${RTBKIT_VARIANT} yes yes ${UNIQUEID} 
       - echo "generation completed `date`"
+  build:
+    commands:
   post_build:
     commands:
      
