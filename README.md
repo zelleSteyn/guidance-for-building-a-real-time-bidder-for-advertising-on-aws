@@ -58,7 +58,7 @@ The Real-Time Bidder Solution on AWS consists of 5 modules:
 ### Service Limits
 
 Increase the following service limits via Service Quotas section in AWS Console.
-* DynamoDB table Read Capacity Unit (RCU) limit should be increased to 150,000 RCU's from default 40,000 RCU's. The limit is called `Table-level read throughput limit` under the `Amazon DynamoDB` service quota.
+* DynamoDB table Read Capacity Unit (RCU) limit should be increased to 150,000 RCU's from default 40,000 RCU's. The limit is called `Table-level read throughput limit` under the `Amazon DynamoDB` service quota. Do the same number (150000) for `Account-level read throughput limit (Provisioned mode)`
 * Kinesis shards limit should be increased to 2048. The limit is called `Shard per Region` under `Amazon Kinesis Data Streams` service quota.
 * IAM `Managed Policies per role` increase to 20
 
