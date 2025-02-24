@@ -274,6 +274,7 @@ bidder@deploy-codekit: BIDDER_IMAGE_REPOSITORY="$(STACK_NAME)-bidder"
 bidder@deploy-codekit: ## Start a Codekit benchmark
 	envsubst < deployment/infrastructure/deployment/bidder/overlay-codekit-$(VARIANT).yaml.tmpl >$(BIDDER_OVERLAY_TEMP) && \
 		$(MAKE) eks@deploybidder IMAGE_PREFIX=$(IMAGE_PREFIX) VALUES=$(BIDDER_OVERLAY_TEMP) \
+		DYNAMODB_TABLENAME_PREFIX=$(DYNAMODB_TABLENAME_PREFIX) \
 		AWS_REGION=$(AWS_REGION) BIDDER_IMAGE_REPOSITORY="$(IMAGE_PREFIX)bidder" AWS_ACCOUNT=$(AWS_ACCOUNT)
 #	envsubst < deployment/infrastructure/deployment/model/overlay-codekit.yaml.tmpl >$(MODEL_OVERLAY_TEMP) && \
         	$(MAKE) eks@deploymodel IMAGE_PREFIX=$(IMAGE_PREFIX) VALUES=$(MODEL_OVERLAY_TEMP) \
