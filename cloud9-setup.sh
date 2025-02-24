@@ -12,19 +12,19 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh && ./get_helm.sh --version v3.8.2
 
 # install jq
-sudo yum install jq
+brew install jq
 
 # install kubectl specific version 1.21.0
 #curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
 curl -LO "https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+sudo install  -m 0755 kubectl /usr/local/bin/kubectl
 
 kubectl version --client --output=yaml    
 
 # EKS Cluster connectivity
-export AWS_ACCOUNT=""
-export AWS_REGION="us-west-2"
-export ROOT_STACK="rtbkit-bkr-dev"
+export AWS_ACCOUNT=
+export AWS_REGION="us-east-1"
+export ROOT_STACK="rtb-stack"
 export APPLICATION_STACK_NAME=`aws cloudformation list-exports --query "Exports[?Name=='ApplicationStackName'].Value" --output text`
 export CODEBUILD_STACK_NAME=`aws cloudformation describe-stacks --stack-name ${ROOT_STACK} --output json | jq '.Stacks[].Outputs[] | select(.OutputKey=="CodebuildStackARN") | .OutputValue' | cut -d/ -f2`
 export EKS_WORKER_ROLE_ARN=`aws cloudformation list-exports --query "Exports[?Name=='EKSWorkerRoleARN'].Value" --output text`
@@ -46,8 +46,8 @@ make eks@use
 kubectl get pods
 
 # run benchmark
-make benchmark@cleanup
-make benchmark@run TIMEOUT=100ms NUMBER_OF_JOBS=1 RATE_PER_JOB=200 NUMBER_OF_DEVICES=10000 DURATION=60s
+#make benchmark@cleanup
+#make benchmark@run TIMEOUT=100ms NUMBER_OF_JOBS=1 RATE_PER_JOB=200 NUMBER_OF_DEVICES=10000 DURATION=60s
 # TIMEOUT=100ms        # Request timeout (default 100ms)
 # DURATION=500s        # duration of the load generation
 # RATE_PER_JOB=5000    # target request rate for the load generator

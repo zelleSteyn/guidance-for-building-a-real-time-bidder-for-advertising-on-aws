@@ -266,7 +266,7 @@ benchmark@codekit: ## Start a Codekit benchmark
 BIDDER_OVERLAY_TEMP:=$(shell mktemp)
 #MODEL_OVERLAY_TEMP:=$(shell mktemp)
 bidder@deploy-codekit:
-bidder@deploy-codekit: DYNAMODB_TABLENAME_PREFIX=$(STACK_NAME_)
+bidder@deploy-codekit: DYNAMODB_TABLENAME_PREFIX=$(STACK_NAME)_${UNID}
 bidder@deploy-codekit: VARIANT=dynamodb
 bidder@deploy-codekit: IMAGE_PREFIX?=$(STACK_NAME)-
 bidder@deploy-codekit: BIDDER_IMAGE_REPOSITORY="$(STACK_NAME)-bidder"
