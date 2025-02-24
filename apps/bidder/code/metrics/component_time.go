@@ -48,6 +48,7 @@ func Start() {
 	BidRequestTime.StartService()
 	DeviceQueryTime.StartService()
 	KinesisTime.StartService()
+	StartActionMetrics()
 }
 
 // Close all buffered summaries.
@@ -55,4 +56,5 @@ func Close() {
 	BidRequestTime.CloseService()
 	DeviceQueryTime.CloseService()
 	KinesisTime.CloseService()
+	CloseActionMetrics()
 }
