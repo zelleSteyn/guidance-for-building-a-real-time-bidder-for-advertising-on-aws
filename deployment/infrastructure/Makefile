@@ -173,7 +173,8 @@ eks@provision-nvme: ## Provision NVMe volume provisioner
 
 
 eks@deploybidder: BIDDER_IMAGE_REPOSITORY="$(STACK_NAME)-bidder"
-eks@deploybidder: ## Deploy application to EKS
+eks@deploybidder: DYNAMODB_TABLENAME_PREFIX="$(DYNAMODB_TABLENAME_PREFIX)"
+## Deploy application to EKS
 # Pass a values overlay file if not using the basic overlay.
 	helm upgrade --install $(BASE_HELM_OPTS) $(HELM_OPTS) bidder ./deployment/infrastructure/charts/bidder \
 		$(foreach ITEM,$(subst $(COMMA), ,$(OVERLAY)), $(if $(strip $(subst basic,,$(ITEM))),-f ./deployment/infrastructure/deployment/bidder/overlay-$(ITEM).yaml,)) \
